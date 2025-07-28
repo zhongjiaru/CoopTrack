@@ -1,18 +1,18 @@
 <div align="center">
 <h1>CoopTrack: Exploring End-to-End Learning for Efficient Cooperative Sequential Perception</h1>
 
-[Jiaru Zhong](https://scholar.google.com/citations?hl=zh-CN&user=Q9KMoxkAAAAJ), Jiahao Wang, [Jiahui Xu](https://scholar.google.com/citations?hl=zh-CN&user=MHa9ts4AAAAJ), [Xiaofan Li](https://scholar.google.com/citations?hl=zh-CN&user=pjZdkO4AAAAJ&view_op=list_works&sortby=pubdate), [Zaiqing Nie](https://scholar.google.com/citations?user=Qg7T6vUAAAAJ), [Haibao Yu](https://scholar.google.com/citations?user=JW4F5HoAAAAJ)\*</sup>
+[Jiaru Zhong](https://scholar.google.com/citations?hl=zh-CN&user=Q9KMoxkAAAAJ), Jiahao Wang, [Jiahui Xu](https://scholar.google.com/citations?hl=zh-CN&user=MHa9ts4AAAAJ), [Xiaofan Li](https://scholar.google.com/citations?hl=zh-CN&user=pjZdkO4AAAAJ&view_op=list_works&sortby=pubdate), [Zaiqing Nie](https://scholar.google.com/citations?user=Qg7T6vUAAAAJ)*, [Haibao Yu](https://scholar.google.com/citations?user=JW4F5HoAAAAJ)\*</sup>
 
 <!-- <sup>1</sup> The Hong Kong Polytechnic University <sup>2</sup> AIR, Tsinghua University <br> <sup>3</sup> The University of Hong Kong <sup>4</sup> SVM, Tsinghua University <br> <sup>5</sup> Baidu Inc.
 <br> Work done while at AIR, Tsinghua University. -->
 
-<!-- ![CoopTrack](https://img.shields.io/badge/Arxiv-Paper-2b9348.svg?logo=arXiv)(Coming Soon)
-[![Weights](https://img.shields.io/badge/%F0%9F%A4%97%20Weights-Download-blue)]()&nbsp; -->
+[![CoopTrack](https://img.shields.io/badge/Arxiv-Paper-2b9348.svg?logo=arXiv)](https://arxiv.org/abs/2507.19239)
+<!-- [![Weights](https://img.shields.io/badge/%F0%9F%A4%97%20Weights-Download-blue)]()&nbsp; -->
 
 </div>
 
 ## News
-
+- **` July 25, 2025`:** CoopTrack is available at [arXiv](https://arxiv.org/abs/2507.19239) now. And CoopTrack is selected as **Highlight**. 
 - **` June 26, 2025`:** CoopTrack has been accepted by ICCV 2025! We will release our paper and code soon!
 
 ## Table of Contents
