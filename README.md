@@ -20,12 +20,11 @@
 - [Introduction](#introduction)
 - [Getting Started](#getting-started) (Coming Soon)
 - [Contact](#contact)
-- [Citation](#citation) (Coming Soon)
+- [Citation](#citation)
 - [Related Works](#related-works)
 
 ## Introduction
-Cooperative perception aims to address the inherent limitations of single autonomous driving systems through information exchange among multiple agents. Previous research has primarily focused on single-frame perception tasks. However, the more challenging cooperative sequential perception tasks, such as cooperative 3D multi-object tracking, have not been thoroughly investigated.
-Therefore, we propose CoopTrack, a fully instance-level end-to-end framework for cooperative tracking, featuring learnable instance association, which fundamentally differs from existing approaches. CoopTrack transmits sparse instance-level features that significantly enhance perception capabilities while maintaining low transmission costs. Furthermore, the framework comprises three key components: Multi-Dimensional Feature Extraction (MDFE), Cross-Agent Alignment (CAA), and Graph-Based Association (GBA), which collectively enable comprehensive instance representation with semantic and motion features, and adaptive cross-agent association and fusion based on graph learning. Experiments on the V2X-Seq dataset demonstrate that, benefiting from its sophisticated design, CoopTrack achieves state-of-the-art performance, with 39.0% mAP and 32.8% AMOTA.
+Cooperative perception aims to address the inherent limitations of single-vehicle autonomous driving systems through information exchange among multiple agents. Previous research has primarily focused on single-frame perception tasks. However, the more challenging cooperative sequential perception tasks, such as cooperative 3D multi-object tracking, have not been thoroughly investigated. Therefore, we propose CoopTrack, a fully instance-level end-to-end framework for cooperative tracking, featuring learnable instance association, which fundamentally differs from existing approaches. CoopTrack transmits sparse instance-level features that significantly enhance perception capabilities while maintaining low transmission costs. Furthermore, the framework comprises two key components: Multi-Dimensional Feature Extraction, and Cross-Agent Association and Aggregation, which collectively enable comprehensive instance representation with semantic and motion features, and adaptive cross-agent association and fusion based on a feature graph. Experiments on both the V2X-Seq and Griffin datasets demonstrate that CoopTrack achieves excellent performance. Specifically, it attains state-of-the-art results on V2X-Seq, with 39.0\% mAP and 32.8\% AMOTA. 
 
 
 ## Getting Started
@@ -41,12 +40,17 @@ If you have any questions, please contact Jiaru Zhong via email (zhong.jiaru@out
 This work is partly built upon [UniV2X](https://github.com/AIR-THU/UniV2X), [UniAD](https://github.com/OpenDriveLab/UniAD), [PF-Track](https://github.com/TRI-ML/PF-Track), and [AdaTrack](https://github.com/dsx0511/ADA-Track). Thanks them for their great works! -->
 
 ## Citation
-We will release our paper on arXiv soon.
-<!-- If you find CoopTrack is useful in your research or applications, please consider giving us a star 🌟 and citing it by the following BibTeX entry.
+If you find CoopTrack is useful in your research or applications, please consider giving us a star 🌟 and citing it by the following BibTeX entry.
 
-```bibtex
+```
+@article{zhong2025cooptrack,
+  title={CoopTrack: Exploring End-to-End Learning for Efficient Cooperative Sequential Perception},
+  author={Zhong, Jiaru and Wang, Jiahao and Xu, Jiahui and Li, Xiaofan and Nie, Zaiqing and Yu, Haibao},
+  journal={arXiv preprint arXiv:2507.19239},
+  year={2025}
+}
 
-``` -->
+```
 
 ## Related Works
 - [UniV2X](https://github.com/AIR-THU/UniV2X)
