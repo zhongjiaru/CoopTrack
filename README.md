@@ -7,18 +7,19 @@
 <br> Work done while at AIR, Tsinghua University. -->
 
 [![CoopTrack](https://img.shields.io/badge/Arxiv-Paper-2b9348.svg?logo=arXiv)](https://arxiv.org/abs/2507.19239)
-<!-- [![Weights](https://img.shields.io/badge/%F0%9F%A4%97%20Weights-Download-blue)]()&nbsp; -->
+[![Weights](https://img.shields.io/badge/%F0%9F%A4%97%20Weights-Download-blue)](https://huggingface.co/zhongjiaru/CoopTrack)&nbsp;
 
 </div>
 
 ## News
+- **` August 31, 2025`:** The [code](https://github.com/zhongjiaru/CoopTrack) and [model](https://huggingface.co/zhongjiaru/CoopTrack) have been open-sourced.
 - **` July 25, 2025`:** CoopTrack is available at [arXiv](https://arxiv.org/abs/2507.19239) now. And CoopTrack is selected as **Highlight**. 
 - **` June 26, 2025`:** CoopTrack has been accepted by ICCV 2025! We will release our paper and code soon!
 
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Getting Started](#getting-started) (Coming Soon)
+- [Getting Started](#getting-started)
 - [Contact](#contact)
 - [Citation](#citation)
 - [Related Works](#related-works)
@@ -28,16 +29,13 @@ Cooperative perception aims to address the inherent limitations of single-vehicl
 
 
 ## Getting Started
-We will release codes soon. Stay tuned!
-
+- [Installation](./docs/INSTALL.md)
+- [Prepare Dataset](./docs/DATA_PREP.md)
+- [Train/Val](./docs/TRAIN_EVAL.md)
 
 ## Contact
 
 If you have any questions, please contact Jiaru Zhong via email (zhong.jiaru@outlook.com).
-
-<!-- ## Acknowledgement
-
-This work is partly built upon [UniV2X](https://github.com/AIR-THU/UniV2X), [UniAD](https://github.com/OpenDriveLab/UniAD), [PF-Track](https://github.com/TRI-ML/PF-Track), and [AdaTrack](https://github.com/dsx0511/ADA-Track). Thanks them for their great works! -->
 
 ## Citation
 If you find CoopTrack is useful in your research or applications, please consider giving us a star 🌟 and citing it by the following BibTeX entry.
@@ -53,6 +51,7 @@ If you find CoopTrack is useful in your research or applications, please conside
 ```
 
 ## Related Works
+We are deeply grateful for the following outstanding opensource work; without them, our work would not have been possible.
 - [UniV2X](https://github.com/AIR-THU/UniV2X)
 - [UniAD](https://github.com/OpenDriveLab/UniAD)
 - [DAIR-V2X](https://github.com/AIR-THU/DAIR-V2X)

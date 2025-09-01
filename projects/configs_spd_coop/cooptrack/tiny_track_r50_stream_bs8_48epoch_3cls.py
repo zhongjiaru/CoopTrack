@@ -1,0 +1,549 @@
+_base_ = ["../_base_/datasets/nus-3d.py", "../_base_/default_runtime.py"]
+
+plugin = True
+plugin_dir = "projects/mmdet3d_plugin/"
+# If point cloud range is changed, the models should also change their point
+# cloud range accordingly
+point_cloud_range = [-51.2, -51.2, -5.0, 51.2, 51.2, 3.0]
+inf_point_cloud_range = [0, -51.2, -5.0, 102.4, 51.2, 3.0]
+post_center_range=[-61.2, -61.2, -10.0, 61.2, 61.2, 10.0]
+voxel_size = [0.2, 0.2, 8]
+patch_size = [102.4, 102.4]
+img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+class_names = [
+    "car",
+    "bicycle",
+    "pedestrian",
+]
+
+#class_range for eva
+class_range={
+    "car": 50,
+    "bicycle": 40,
+    "pedestrian": 40,
+}
+
+input_modality = dict(
+    use_lidar=False, use_camera=True, use_radar=False, use_map=False, use_external=True
+)
+_dim_ = 256
+_pos_dim_ = _dim_ // 2
+_ffn_dim_ = _dim_ * 2
+_num_levels_ = 1
+bev_h_ = 50
+bev_w_ = 50
+_feed_dim_ = _ffn_dim_
+_dim_half_ = _pos_dim_
+canvas_size = (bev_h_, bev_w_)
+num_query = 900
+
+# Other settings
+train_gt_iou_threshold = 0.3
+
+# stream training
+num_each_seq = 5 # 0: keep original sequences
+seq_mode = True
+queue_length = 1  # when stream training, queue_length=1
+num_gpus = 2
+batch_size = 8 # batch on each gpu
+num_iters_per_epoch = 7362 // (num_gpus * batch_size)
+num_epochs = 48
+is_motion = True
+
+is_cooperation = True
+read_track_query_file_root = 'data/infos/inf_query'
+inf_keys = ['query_feats', 'query_embeds', 'cache_motion_feats', 'ref_pts', 'pred_boxes']
+learn_match = True
+veh_thre = 0.4
+
+model = dict(
+    type="CoopTrack",
+    is_cooperation=is_cooperation,
+    read_track_query_file_root=read_track_query_file_root,
+    seq_mode=seq_mode,
+    batch_size=batch_size,
+    gt_iou_threshold=train_gt_iou_threshold,
+    queue_length=queue_length,
+    use_grid_mask=True,
+    video_test_mode=True,
+    num_query=num_query,
+    num_classes=len(class_names),
+    pc_range=point_cloud_range,
+    inf_pc_range=inf_point_cloud_range,
+    post_center_range=post_center_range,
+    motion_prediction_ref_update=False,
+    runtime_tracker=dict(
+        output_threshold=0.3,
+        score_threshold=0.4,
+        record_threshold=0.0,
+        max_age_since_update=3,),
+    fp_ratio=0.3,
+    random_drop=0.1,
+    shuffle=False,
+    is_motion=is_motion,
+    spatial_temporal_reason=dict(
+        num_classes=len(class_names),
+        is_motion=is_motion,
+        is_cooperation=is_cooperation,
+        learn_match=learn_match,
+        veh_thre=veh_thre,
+        history_reasoning=True,
+        future_reasoning=False,
+        hist_len=4,
+        fut_len=8,
+        pc_range=point_cloud_range,
+        hist_temporal_transformer=dict(
+            type='TemporalTransformer',
+            decoder=dict(
+                type='PETRTransformerDecoder',
+                return_intermediate=True,
+                num_layers=2,
+                transformerlayers=dict(
+                    type='PETRTransformerDecoderLayer',
+                    with_cp=False,
+                    attn_cfgs=[
+                        dict(
+                            type='MultiheadAttention',
+                            embed_dims=256,
+                            num_heads=8,
+                            dropout=0.1),
+                        dict(
+                            type='PETRMultiheadAttention',
+                            embed_dims=256,
+                            num_heads=8,
+                            dropout=0.1),
+                        ],
+                    feedforward_channels=2048,
+                    ffn_dropout=0.1,
+                    operation_order=('self_attn', 'norm', 'cross_attn', 'norm',
+                                     'ffn', 'norm')),
+            )),
+        spatial_transformer=dict(
+            type='TemporalTransformer',
+            decoder=dict(
+                type='PETRTransformerDecoder',
+                return_intermediate=True,
+                num_layers=2,
+                transformerlayers=dict(
+                    type='PETRTransformerDecoderLayer',
+                    with_cp=False,
+                    attn_cfgs=[
+                        dict(
+                            type='MultiheadAttention',
+                            embed_dims=256,
+                            num_heads=8,
+                            dropout=0.1),
+                        dict(
+                            type='PETRMultiheadAttention',
+                            embed_dims=256,
+                            num_heads=8,
+                            dropout=0.1),
+                        ],
+                    feedforward_channels=2048,
+                    ffn_dropout=0.1,
+                    operation_order=('self_attn', 'norm', 'cross_attn', 'norm',
+                                     'ffn', 'norm')),
+            )),
+        fut_temporal_transformer=dict(
+            type='TemporalTransformer',
+            decoder=dict(
+                type='PETRTransformerDecoder',
+                return_intermediate=True,
+                num_layers=2,
+                transformerlayers=dict(
+                    type='PETRTransformerDecoderLayer',
+                    with_cp=False,
+                    attn_cfgs=[
+                        dict(
+                            type='MultiheadAttention',
+                            embed_dims=256,
+                            num_heads=8,
+                            dropout=0.1),
+                        dict(
+                            type='PETRMultiheadAttention',
+                            embed_dims=256,
+                            num_heads=8,
+                            dropout=0.1),
+                        ],
+                    feedforward_channels=2048,
+                    ffn_dropout=0.1,
+                    operation_order=('self_attn', 'norm', 'cross_attn', 'norm',
+                                     'ffn', 'norm')),
+            )),),
+    img_backbone=dict(
+        type='ResNet',
+        depth=50,
+        num_stages=4,
+        out_indices=(3,),
+        frozen_stages=1,
+        norm_cfg=dict(type='BN', requires_grad=False),
+        norm_eval=True,
+        style='pytorch'),
+    img_neck=dict(
+        type='FPN',
+        in_channels=[2048],
+        out_channels=_dim_,
+        start_level=0,
+        add_extra_convs='on_output',
+        num_outs=_num_levels_,
+        relu_before_extra_convs=True),
+    freeze_img_backbone=True,
+    freeze_img_neck=True,
+    freeze_bn=True,
+    loss_cfg=dict(
+        type="ClipMatcher",
+        num_classes=len(class_names),
+        weight_dict=None,
+        code_weights=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2, 0.2],
+        assigner=dict(
+            type="HungarianAssigner3DTrack",
+            cls_cost=dict(type="FocalLossCost", weight=2.0),
+            reg_cost=dict(type="BBox3DL1Cost", weight=0.25),
+            pc_range=point_cloud_range,
+        ),
+        loss_cls=dict(
+            type="FocalLoss", use_sigmoid=True, gamma=2.0, alpha=0.25, loss_weight=2.0
+        ),
+        loss_bbox=dict(type="L1Loss", loss_weight=0.25),
+        loss_past_traj_weight=0.0,
+        loss_prediction=dict(type='L1Loss', loss_weight=0.5),
+    ),
+    asso_loss_cfg=dict(
+        loss_focal=dict(type="FocalLoss", use_sigmoid=True, gamma=1.0, alpha=-1, loss_weight=10.0),
+    ),
+    pts_bbox_head=dict(
+        type="BEVFormerTrackHead",
+        bev_h=bev_h_,
+        bev_w=bev_w_,
+        num_query=num_query,
+        num_classes=len(class_names),
+        in_channels=_dim_,
+        sync_cls_avg_factor=True,
+        with_box_refine=True,
+        as_two_stage=False,
+        transformer=dict(
+            type="PerceptionTransformer",
+            rotate_prev_bev=True,
+            use_shift=True,
+            use_can_bus=True,
+            embed_dims=_dim_,
+            encoder=dict(
+                type="BEVFormerEncoder",
+                num_layers=3,
+                pc_range=point_cloud_range,
+                num_points_in_pillar=4,
+                return_intermediate=False,
+                transformerlayers=dict(
+                    type="BEVFormerLayer",
+                    attn_cfgs=[
+                        dict(
+                            type="TemporalSelfAttention", embed_dims=_dim_, num_levels=1
+                        ),
+                        dict(
+                            type="SpatialCrossAttention",
+                            pc_range=point_cloud_range,
+                            deformable_attention=dict(
+                                type="MSDeformableAttention3D",
+                                embed_dims=_dim_,
+                                num_points=8,
+                                num_levels=_num_levels_,
+                            ),
+                            embed_dims=_dim_,
+                        ),
+                    ],
+                    feedforward_channels=_ffn_dim_,
+                    ffn_dropout=0.1,
+                    operation_order=(
+                        "self_attn",
+                        "norm",
+                        "cross_attn",
+                        "norm",
+                        "ffn",
+                        "norm",
+                    ),
+                ),
+            ),
+            decoder=dict(
+                type="DetectionTransformerDecoder",
+                num_layers=6,
+                return_intermediate=True,
+                transformerlayers=dict(
+                    type="DetrTransformerDecoderLayer",
+                    attn_cfgs=[
+                        dict(
+                            type="MultiheadAttention",
+                            embed_dims=_dim_,
+                            num_heads=8,
+                            dropout=0.1,
+                        ),
+                        dict(
+                            type="CustomMSDeformableAttention",
+                            embed_dims=_dim_,
+                            num_levels=1,
+                        ),
+                    ],
+                    feedforward_channels=_ffn_dim_,
+                    ffn_dropout=0.1,
+                    operation_order=(
+                        "self_attn",
+                        "norm",
+                        "cross_attn",
+                        "norm",
+                        "ffn",
+                        "norm",
+                    ),
+                ),
+            ),
+        ),
+        bbox_coder=dict(
+            type="DETRTrack3DCoder",
+            post_center_range=post_center_range,
+            pc_range=point_cloud_range,
+            max_num=300,
+            num_classes=len(class_names),
+            score_threshold=0.0,
+            with_nms=False,
+            iou_thres=0.3,
+        ),
+        positional_encoding=dict(
+            type="LearnedPositionalEncoding",
+            num_feats=_pos_dim_,
+            row_num_embed=bev_h_,
+            col_num_embed=bev_w_,
+        ),
+        loss_cls=dict(
+            type="FocalLoss", use_sigmoid=True, gamma=2.0, alpha=0.25, loss_weight=2.0
+        ),
+        loss_bbox=dict(type="L1Loss", loss_weight=0.25),
+        loss_iou=dict(type="GIoULoss", loss_weight=0.0),
+    ),
+    # model training and testing settings
+    train_cfg=dict(
+        pts=dict(
+            grid_size=[512, 512, 1],
+            voxel_size=voxel_size,
+            point_cloud_range=point_cloud_range,
+            out_size_factor=4,
+            assigner=dict(
+                type="HungarianAssigner3D",
+                cls_cost=dict(type="FocalLossCost", weight=2.0),
+                reg_cost=dict(type="BBox3DL1Cost", weight=0.25),
+                iou_cost=dict(
+                    type="IoUCost", weight=0.0
+                ),  # Fake cost. This is just to make it compatible with DETR head.
+                pc_range=point_cloud_range,
+            ),
+        )
+    ),
+)
+
+file_client_args = dict(backend="disk")
+
+dataset_type = "SPDDataset"
+data_root = "./datasets/V2X-Seq-SPD-Batch-65-10-10761/cooperative/"
+info_root = "./data/infos/V2X-Seq-SPD-Batch-65-10-10761-forecasting/cooperative/"
+ann_file_train = info_root + f"spd_infos_temporal_train.pkl"
+ann_file_val = info_root + f"spd_infos_temporal_val.pkl"
+ann_file_test = info_root + f"spd_infos_temporal_val.pkl"
+
+# for eval data
+split_datas_file = "./data/split_datas/cooperative-split-data-spd.json"
+
+train_pipeline = [
+    dict(type="LoadMultiViewImageFromFilesInCeph", to_float32=True, file_client_args=file_client_args, img_root=data_root),
+    dict(type='LoadInfInformation', load_file_root=read_track_query_file_root, keys=inf_keys),
+    dict(type="PhotoMetricDistortionMultiViewImage"),
+    dict(
+        type="LoadAnnotations3D_E2E",
+        with_bbox_3d=True,
+        with_label_3d=True,
+        with_attr_label=False,
+
+        with_future_anns=False,  # occ_flow gt
+        with_ins_inds_3d=True,  # ins_inds 
+        ins_inds_add_1=True,  # ins_inds start from 1
+        with_forecasting=False, # future trajectory
+    ),
+    dict(type="ObjectRangeFilterTrack", point_cloud_range=point_cloud_range),
+    dict(type="ObjectNameFilterTrack", classes=class_names),
+    dict(type="NormalizeMultiviewImage", **img_norm_cfg),
+    dict(type='RandomScaleImageMultiViewImage', scales=[0.5]),
+    dict(type="PadMultiViewImage", size_divisor=32),
+    dict(type="CustomDefaultFormatBundle3D", class_names=class_names, collect_keys=inf_keys),
+    dict(
+        type="CustomCollect3D",
+        keys=[
+            #coop
+            "veh2inf_rt",
+            *inf_keys,
+            "gt_bboxes_3d",
+            "gt_labels_3d",
+            "gt_inds",
+            "img",
+            "timestamp",
+            "l2g_r_mat",
+            "l2g_t",
+        ],
+        meta_keys=('filename', 'ori_shape', 'img_shape', 'lidar2img',
+                            'depth2img', 'cam2img', 'pad_shape',
+                            'scale_factor', 'flip', 'pcd_horizontal_flip',
+                            'pcd_vertical_flip', 'box_mode_3d', 'box_type_3d',
+                            'img_norm_cfg', 'pcd_trans', 'sample_idx', 'sample_idx_inf','prev_idx', 'next_idx',
+                            'pcd_scale_factor', 'pcd_rotation', 'pts_filename',
+                            'transformation_3d_flow', 'scene_token',
+                            'can_bus',
+                            ),
+    ),
+]
+test_pipeline = [
+    dict(type='LoadMultiViewImageFromFilesInCeph', to_float32=True,
+         file_client_args=file_client_args, img_root=data_root),
+    dict(type='LoadInfInformation', load_file_root=read_track_query_file_root, keys=inf_keys),
+    dict(type="NormalizeMultiviewImage", **img_norm_cfg),
+    # dict(type="PadMultiViewImage", size_divisor=32),
+    dict(type='LoadAnnotations3D_E2E',
+         with_bbox_3d=True,
+         with_label_3d=True,
+         with_attr_label=False,
+
+         with_future_anns=False,
+         with_ins_inds_3d=True,
+         ins_inds_add_1=True,  # ins_inds start from 1
+         ),
+    dict(
+        type="MultiScaleFlipAug3D",
+        img_scale=(1600, 900),
+        pts_scale_ratio=1,
+        flip=False,
+        transforms=[
+            dict(type='RandomScaleImageMultiViewImage', scales=[0.5]),
+            dict(type='PadMultiViewImage', size_divisor=32),
+            dict(
+                type="CustomDefaultFormatBundle3D", class_names=class_names, with_label=False, collect_keys=inf_keys
+            ),
+            dict(
+                type="CustomCollect3D", keys=[
+                                            #coop
+                                            "veh2inf_rt",
+                                            *inf_keys,
+                                            "gt_bboxes_3d",
+                                            "gt_labels_3d",
+                                            "gt_inds",
+                                            "img",
+                                            "timestamp",
+                                            "l2g_r_mat",
+                                            "l2g_t",
+                                        ],
+                                        meta_keys=('filename', 'ori_shape', 'img_shape', 'lidar2img',
+                                            'depth2img', 'cam2img', 'pad_shape',
+                                            'scale_factor', 'flip', 'pcd_horizontal_flip',
+                                            'pcd_vertical_flip', 'box_mode_3d', 'box_type_3d',
+                                            'img_norm_cfg', 'pcd_trans', 'sample_idx', 'sample_idx_inf','prev_idx', 'next_idx',
+                                            'pcd_scale_factor', 'pcd_rotation', 'pts_filename',
+                                            'transformation_3d_flow', 'scene_token',
+                                            'can_bus',
+                                            ),
+            ),
+        ],
+    ),
+]
+data = dict(
+    samples_per_gpu=batch_size,
+    workers_per_gpu=4, # 0 is single subprocess
+    train=dict(
+        type=dataset_type,
+        forecasting=False,
+        file_client_args=file_client_args,
+        data_root=data_root,
+        ann_file=ann_file_train,
+        pipeline=train_pipeline,
+        classes=class_names,
+        modality=input_modality,
+        inf_keys=inf_keys,
+        test_mode=False,
+        use_valid_flag=True,
+        patch_size=patch_size,
+        canvas_size=canvas_size,
+        bev_size=(bev_h_, bev_w_),
+        queue_length=queue_length,
+        num_each_seq=num_each_seq,
+        seq_mode=seq_mode,
+        # we use box_type_3d='LiDAR' in kitti and nuscenes dataset
+        # and box_type_3d='Depth' in sunrgbd and scannet dataset.
+        box_type_3d="LiDAR",
+        split_datas_file=split_datas_file,
+        v2x_side='cooperative',
+        class_range=class_range
+    ),
+    val=dict(
+        type=dataset_type,
+        file_client_args=file_client_args,
+        data_root=data_root,
+        ann_file=ann_file_val,
+        pipeline=test_pipeline,
+        patch_size=patch_size,
+        canvas_size=canvas_size,
+        bev_size=(bev_h_, bev_w_),
+        classes=class_names,
+        modality=input_modality,
+        inf_keys=inf_keys,
+        samples_per_gpu=1,
+        eval_mod=['det', 'track'],
+        split_datas_file=split_datas_file,
+        v2x_side='cooperative',
+        class_range=class_range
+    ),
+    test=dict(
+        type=dataset_type,
+        file_client_args=file_client_args,
+        data_root=data_root,
+        test_mode=True,
+        ann_file=ann_file_test,
+        pipeline=test_pipeline,
+        patch_size=patch_size,
+        canvas_size=canvas_size,
+        bev_size=(bev_h_, bev_w_),
+        classes=class_names,
+        modality=input_modality,
+        inf_keys=inf_keys,
+        eval_mod=['det', 'track'],
+        split_datas_file=split_datas_file,
+        v2x_side='cooperative',
+        class_range=class_range
+    ),
+    shuffler_sampler=dict(type="InfiniteGroupEachSampleInBatchSampler"),
+    nonshuffler_sampler=dict(type="DistributedSampler"),
+)
+
+# 8	    2e-4
+# 16	4e-4
+# 32	6e-4
+optimizer = dict(
+    type="AdamW",
+    lr=2e-4,
+    paramwise_cfg=dict(
+        custom_keys={
+            "img_backbone": dict(lr_mult=0.1),
+        }
+    ),
+    weight_decay=0.01,
+)
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+# learning policy
+lr_config = dict(
+    policy="CosineAnnealing",
+    warmup="linear",
+    warmup_iters=500,
+    warmup_ratio=1.0 / 3,
+    min_lr_ratio=1e-3,
+)
+
+evaluation = dict(interval=num_iters_per_epoch*num_epochs, pipeline=test_pipeline)
+runner = dict(type="IterBasedRunner", max_iters=num_epochs * num_iters_per_epoch)
+log_config = dict(
+    interval=10, hooks=[dict(type="TextLoggerHook"), dict(type="TensorboardLoggerHook")]
+)
+checkpoint_config = dict(interval=num_iters_per_epoch, max_keep_ckpts=3)
+load_from = "ckpts/cooptrack_r50_veh.pth"
+
+find_unused_parameters = True

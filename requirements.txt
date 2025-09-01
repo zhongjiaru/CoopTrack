@@ -1,0 +1,4 @@
+motmetrics==1.1.3
+einops==0.4.1
+yapf==0.40.1
+setuptools==59.5.0
