@@ -10,7 +10,6 @@ __pycache__/
 .dist_test/
 *.avi
 ckpts/
-data
 data_carla
 viz/
 .Python
